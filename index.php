@@ -4,7 +4,7 @@ class HelloWorld
 {
         public function sayHello(DateTimeImutable $date): void
         {
-                echo 'Hello, ' . $date->format('j. n. Y');
+                echo 'Hello, 1' . $date->format('j. n. Y');
         }
 }
 
