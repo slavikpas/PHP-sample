@@ -180,38 +180,6 @@ pipeline {
         }
       }
     } // stage: update submodules
-    stage('Build TEST bundle') {
-      options {
-        timeout(
-          time: 1,
-          unit: 'HOURS',
-        )
-      }
-      steps {
-        setBuildStatus(
-          message: 'Building TEST bundle file',
-          state: 'PENDING',
-        )
-        sshagent (credentials: ['git-aws-read-key']) {
-          sh '''
-            ./jenkins/android-app-size-build.bash \
-              --android-sdk-root /opt/devtools/android-sdk \
-              --build-url "${BUILD_URL}" \
-              --java-home /usr/lib/jvm/openjdk-11-manual-installation \
-              --rerun-tasks "${RERUN_TASKS:-false}" \
-              --workspace-root "${WORKSPACE}"
-
-            mkdir twitchapp/build/outputs/bundle/release/test/
-            mv $BUNDLE_FILE $TEST_BUNDLE_FILE
-          '''.trim()
-        }
-      }
-      post {
-        cleanup {
-          archiveArtifacts artifacts: "$TEST_BUNDLE_FILE"
-        }
-      }
-    } // stage: Build TEST bundle
     stage('Create TEST data source file') {
       options {
         timeout(
