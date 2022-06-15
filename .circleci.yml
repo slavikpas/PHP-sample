@@ -1,0 +1,5 @@
+version: 2
+circleci: 2.0
+
+orbs:
+  codecov-test: codecov/codecov-name@1.1.1
