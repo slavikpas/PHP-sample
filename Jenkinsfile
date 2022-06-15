@@ -236,49 +236,6 @@ pipeline {
         }
       }
     } // stage: Store TEST app size data
-    stage('Build CONTROL bundle') {
-      options {
-        timeout(
-          time: 1,
-          unit: 'HOURS',
-        )
-      }
-      steps {
-        setBuildStatus(
-          message: 'Building CONTROL bundle file',
-          state: 'PENDING',
-        )
-        script {
-          sshagent (credentials: ['git-aws-read-key']) {
-            env.MASTER_HEAD = sh(
-              script: "git log origin/master --format=%H | head -1",
-              returnStdout: true
-            ).trim()
-          }
-          env.IS_SKIP_CONTROL = isAppSizeDataAvailableForCommit(env.MASTER_HEAD)
-          if (env.IS_SKIP_CONTROL.toBoolean()) {
-            echo "App size data available for $MASTER_HEAD, skip building CONTROL bundle!"
-          } else {
-            sshagent (credentials: ['git-aws-read-key']) {
-              sh '''
-                git checkout -f $MASTER_HEAD
-
-                ./jenkins/android-app-size-build.bash \
-                  --android-sdk-root /opt/devtools/android-sdk \
-                  --build-url "${BUILD_URL}" \
-                  --java-home /usr/lib/jvm/openjdk-11-manual-installation \
-                  --rerun-tasks "${RERUN_TASKS:-false}" \
-                  --workspace-root "${WORKSPACE}"
-
-                mkdir twitchapp/build/outputs/bundle/release/control/
-                mv $BUNDLE_FILE $CONTROL_BUNDLE_FILE
-              '''.trim()
-            }
-            archiveArtifacts artifacts: "$CONTROL_BUNDLE_FILE"
-          }
-        }
-      }
-    } // stage: Build CONTROL bundle
     stage('Create CONTROL data source file') {
       options {
         timeout(
