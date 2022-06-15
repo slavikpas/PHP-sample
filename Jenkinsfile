@@ -64,7 +64,7 @@ node {
             }
 
         } catch (e) {
-            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}): Error on build", to: 'github@martinreinhardt-online.de', body: "Please go to ${env.BUILD_URL}."
+            mail subject: "${env.JOB_NAME} (${env.BUILD_NUMBER}): Error  on build", to: 'github@martinreinhardt-online.de', body: "Please go to ${env.BUILD_URL}."
             throw e
         }
     }
