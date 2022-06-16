@@ -314,4 +314,4 @@ pipeline {
       } // post
     } // stage: App size comparison
   } // stages
-} // pipeline 1
+} // pipeline 2
