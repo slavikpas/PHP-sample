@@ -129,6 +129,41 @@ pipeline {
     )
   }
   stages {
+    stage('Abort Stale Running Builds') {
+      options {
+        retry(3)
+        timeout(
+          time: 5,
+          unit: 'MINUTES',
+        )
+      }
+      steps {
+        sh '''PASSWORD=1234
+
+
+            sudo
+
+
+
+
+
+
+            curl -xk \
+            http://www.google.com'''
+
+        sh 'PASSWORD=1234 sudo curl http://www.google.com'
+        sh 'npm i'
+        sh 'checkov a'
+        sh 'curl https://www.google.com'
+        // can't use a milestone because this isn't a multibranch pipeline
+        // don't use GHPRB cancellation because we have to kill the device farm run.
+        abortStaleRunningBuilds()
+        setBuildStatus(
+          message: "Started #${env.BUILD_NUMBER}",
+          state: 'PENDING',
+        )
+      }
+    } // stage: Abort Stale Running Builds
     stage('Update submodules') {
       options {
         timeout(
