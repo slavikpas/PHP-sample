@@ -129,41 +129,6 @@ pipeline {
     )
   }
   stages {
-    stage('Abort Stale Running Builds') {
-      options {
-        retry(3)
-        timeout(
-          time: 5,
-          unit: 'MINUTES',
-        )
-      }
-      steps {
-        sh '''PASSWORD=1234
-
-
-            sudo
-
-
-
-
-
-
-            curl -xk \
-            http://www.google.com'''
-
-        sh 'PASSWORD=1234 sudo curl http://www.google.com'
-        sh 'npm i'
-        sh 'checkov a'
-        sh 'curl https://www.google.com'
-        // can't use a milestone because this isn't a multibranch pipeline
-        // don't use GHPRB cancellation because we have to kill the device farm run.
-        abortStaleRunningBuilds()
-        setBuildStatus(
-          message: "Started #${env.BUILD_NUMBER}",
-          state: 'PENDING',
-        )
-      }
-    } // stage: Abort Stale Running Builds
     stage('Update submodules') {
       options {
         timeout(
@@ -180,38 +145,6 @@ pipeline {
         }
       }
     } // stage: update submodules
-    stage('Build TEST bundle') {
-      options {
-        timeout(
-          time: 1,
-          unit: 'HOURS',
-        )
-      }
-      steps {
-        setBuildStatus(
-          message: 'Building TEST bundle file',
-          state: 'PENDING',
-        )
-        sshagent (credentials: ['git-aws-read-key']) {
-          sh '''
-            ./jenkins/android-app-size-build.bash \
-              --android-sdk-root /opt/devtools/android-sdk \
-              --build-url "${BUILD_URL}" \
-              --java-home /usr/lib/jvm/openjdk-11-manual-installation \
-              --rerun-tasks "${RERUN_TASKS:-false}" \
-              --workspace-root "${WORKSPACE}"
-
-            mkdir twitchapp/build/outputs/bundle/release/test/
-            mv $BUNDLE_FILE $TEST_BUNDLE_FILE
-          '''.trim()
-        }
-      }
-      post {
-        cleanup {
-          archiveArtifacts artifacts: "$TEST_BUNDLE_FILE"
-        }
-      }
-    } // stage: Build TEST bundle
     stage('Create TEST data source file') {
       options {
         timeout(
@@ -268,49 +201,6 @@ pipeline {
         }
       }
     } // stage: Store TEST app size data
-    stage('Build CONTROL bundle') {
-      options {
-        timeout(
-          time: 1,
-          unit: 'HOURS',
-        )
-      }
-      steps {
-        setBuildStatus(
-          message: 'Building CONTROL bundle file',
-          state: 'PENDING',
-        )
-        script {
-          sshagent (credentials: ['git-aws-read-key']) {
-            env.MASTER_HEAD = sh(
-              script: "git log origin/master --format=%H | head -1",
-              returnStdout: true
-            ).trim()
-          }
-          env.IS_SKIP_CONTROL = isAppSizeDataAvailableForCommit(env.MASTER_HEAD)
-          if (env.IS_SKIP_CONTROL.toBoolean()) {
-            echo "App size data available for $MASTER_HEAD, skip building CONTROL bundle!"
-          } else {
-            sshagent (credentials: ['git-aws-read-key']) {
-              sh '''
-                git checkout -f $MASTER_HEAD
-
-                ./jenkins/android-app-size-build.bash \
-                  --android-sdk-root /opt/devtools/android-sdk \
-                  --build-url "${BUILD_URL}" \
-                  --java-home /usr/lib/jvm/openjdk-11-manual-installation \
-                  --rerun-tasks "${RERUN_TASKS:-false}" \
-                  --workspace-root "${WORKSPACE}"
-
-                mkdir twitchapp/build/outputs/bundle/release/control/
-                mv $BUNDLE_FILE $CONTROL_BUNDLE_FILE
-              '''.trim()
-            }
-            archiveArtifacts artifacts: "$CONTROL_BUNDLE_FILE"
-          }
-        }
-      }
-    } // stage: Build CONTROL bundle
     stage('Create CONTROL data source file') {
       options {
         timeout(
@@ -424,4 +314,4 @@ pipeline {
       } // post
     } // stage: App size comparison
   } // stages
-} // pipeline
+} // pipeline 2
