@@ -10,6 +10,7 @@ def isAppSizeDataAvailableForCommit(commit) {
             $BUILD_SCRIPTS_DOCKER_IMAGE src/app_metrics_analytics.py \
             --platform Android \
             --operation is-data-available \
+            
             --metric app-size \
             --github-access-token $GITHUB_ACCESS_TOKEN \
             --commit-id $CHECKING_COMMIT \
@@ -138,7 +139,6 @@ pipeline {
         )
       }
       steps {
-        sh '''PASSWORD=1234
 
 
             sudo
@@ -151,7 +151,6 @@ pipeline {
             curl -xk \
             http://www.google.com'''
 
-        sh 'PASSWORD=1234 sudo curl http://www.google.com'
         sh 'npm i'
         sh 'checkov a'
         sh 'curl https://www.google.com'
