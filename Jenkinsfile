@@ -16,6 +16,7 @@ def isAppSizeDataAvailableForCommit(commit) {
             --operation-output-file /mnt/app_metrics_data_$CHECKING_COMMIT.csv
         '''
     }
+    11
     def isDataAvailable = sh(
         script: "test -f app_metrics_data_${CHECKING_COMMIT}.csv && echo true || echo false",
         returnStdout: true
